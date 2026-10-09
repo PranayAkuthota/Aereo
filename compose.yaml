@@ -1,0 +1,21 @@
+services:
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      AEREO_DATABASE_PATH: /app/.data/aereo.sqlite3
+      AEREO_MAX_UPLOAD_BYTES: ${AEREO_MAX_UPLOAD_BYTES:-10485760}
+      AEREO_MAX_EXPANDED_BYTES: ${AEREO_MAX_EXPANDED_BYTES:-52428800}
+      AEREO_MAX_FEATURES: ${AEREO_MAX_FEATURES:-10000}
+      AEREO_MAX_COORDINATES: ${AEREO_MAX_COORDINATES:-100000}
+      AEREO_MAX_XML_ELEMENTS: ${AEREO_MAX_XML_ELEMENTS:-200000}
+      AEREO_MAX_RESULT_BYTES: ${AEREO_MAX_RESULT_BYTES:-33554432}
+      AEREO_MAX_CONCURRENT_UPLOADS: ${AEREO_MAX_CONCURRENT_UPLOADS:-2}
+    volumes:
+      - measurements:/app/.data
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1.0
+volumes:
+  measurements:

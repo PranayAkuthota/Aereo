@@ -1,0 +1,14 @@
+# Exact versions validated with Python 3.12. Regenerate intentionally after dependency updates.
+-r requirements.lock
+httpcore==1.0.9
+httpx==0.28.1
+iniconfig==2.3.1
+librt==0.16.0
+mypy==1.19.1
+mypy-extensions==1.1.0
+packaging==26.3
+pathspec==1.1.1
+pluggy==1.6.0
+pygments==2.21.0
+pytest==9.0.2
+ruff==0.15.5

@@ -1,0 +1,21 @@
+# Exact versions validated with Python 3.12. Regenerate intentionally after dependency updates.
+annotated-doc==0.0.5
+annotated-types==0.8.0
+anyio==4.15.1
+certifi==2026.7.22
+click==8.5.0
+defusedxml==0.7.1
+fastapi==0.135.1
+h11==0.16.0
+idna==3.20
+numpy==2.5.3
+pydantic==2.14.0
+pydantic-core==2.50.0
+pyproj==3.7.2
+pyshp==3.0.3
+python-multipart==0.0.22
+shapely==2.1.2
+starlette==0.52.1
+typing-extensions==4.16.0
+typing-inspection==0.4.4
+uvicorn==0.41.0
