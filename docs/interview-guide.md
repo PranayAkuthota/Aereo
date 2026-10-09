@@ -84,7 +84,7 @@ is source-CRS XY; it is not necessarily RFC7946 WGS84 GeoJSON.
     remain unsupported rather than being measured inconsistently.
 14. **What about Z/M?** Output is XY and measurements horizontal; Z/M are discarded.
     Missing Z does not invalidate XY. KML optional altitude must be finite syntax.
-15. **What was the deleted-DBF defect?** PyShp filters deleted DBF rows; zipping
+15. **How are deleted DBF rows handled?** PyShp filters deleted DBF rows; zipping
     records with unfiltered shapes shifts associations. Reading both by ordinal
     avoids silent geometry/property mismatches; surviving indices can have gaps.
 16. **How do you handle malicious uploads?** Body/file/XML/coordinate/feature/result
@@ -104,12 +104,15 @@ is source-CRS XY; it is not necessarily RFC7946 WGS84 GeoJSON.
     mode for broader extents, idempotency/retention for client recovery, or durable
     workers/PostgreSQL for larger workloads. None is implemented here.
 
-## Testing strategy: which defects do the tests catch?
+## Testing Strategy
 
 - Exact metric square/hole/line fixtures catch wrong units, missed holes and parts.
   Independent Geod comparisons catch axis, projection and feet/Mercator errors.
 - Deleted first/middle/multiple DBF fixtures verify identity, geometry, properties
   and length, catching success responses that silently associate the wrong row.
+- Multipart part-start fixtures reject dropped, repeated or out-of-range vertices
+  and verify valid six-vertex geometry still measures 40 metres. XML/ZIP encoding
+  fixtures verify controlled errors and no persisted records.
 - Codec/CRC/truncation fixtures catch uncaught decompressors and accepted streams
   without a final end marker. SHX identity tests catch duplicate geometry mapping.
 - Multi-frame ASGI disk-spool tests catch resource leaks before FormData exists.
