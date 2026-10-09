@@ -186,7 +186,16 @@ class KMLReader:
             events = ElementTree.iterparse(
                 io.BytesIO(data), events=("start", "end"), forbid_dtd=True
             )
-            for event, element in events:
+            while True:
+                # Encoding failures belong to the XML reader, not feature processing.
+                try:
+                    event, element = next(events)
+                except StopIteration:
+                    break
+                except (LookupError, ValueError) as exc:
+                    raise APIError(
+                        "INVALID_KML", "The file is not safe, well-formed KML XML."
+                    ) from exc
                 if event == "start":
                     if not stack and element.tag != f"{{{KML_NS}}}kml":
                         raise APIError(
@@ -296,6 +305,7 @@ def archive_components(data: bytes, settings: Settings) -> dict[str, bytes]:
         raise
     except (
         zipfile.BadZipFile,
+        UnicodeDecodeError,
         OSError,
         RuntimeError,
         NotImplementedError,
@@ -384,6 +394,17 @@ def preflight_shapefile(parts: dict[str, bytes], settings: Settings) -> None:
             minimum = 44 + part_count * (8 if kind == 31 else 4) + max(points, 0) * 16
         if points < 0 or size < minimum:
             raise APIError("INVALID_SHAPEFILE", "Invalid or truncated shape coordinate array.")
+        if kind in {3, 5, 13, 15, 23, 25, 31}:
+            if part_count == 0:
+                raise APIError("INVALID_SHAPEFILE", "Multipart shape has no coordinate parts.")
+            previous = -1
+            for part in range(part_count):
+                start = struct.unpack_from("<i", shp, offset + 52 + part * 4)[0]
+                # The final range ends at points; strict starts give every part
+                # a non-empty range and account for every coordinate exactly once.
+                if (part == 0 and start != 0) or not previous < start < points:
+                    raise APIError("INVALID_SHAPEFILE", "Invalid shape part-start indices.")
+                previous = start
         coordinate_count += points
         if coordinate_count > settings.max_coordinates:
             raise APIError("TOO_MANY_COORDINATES", "The coordinate limit was exceeded.", 413)
